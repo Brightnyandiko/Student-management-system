@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
@@ -22,9 +23,10 @@ def doLogin(request):
                                          password=request.POST.get("password"))
         if user != None:
             login(request, user)
-            return HttpResponse("Email : " + request.POST.get("email") + " Password : " + request.POST.get("password"))
+            return HttpResponseRedirect('/admin_home')
         else:
-            return HttpResponse("Invalid Login")
+            messages.error(request, "Invalid Login details")
+            return HttpResponseRedirect("/")
 
 
 def GetUserDetails(request):
