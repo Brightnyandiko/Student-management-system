@@ -31,7 +31,7 @@ urlpatterns = [
                   path('logout_user', views.logout_user),
                   path('admin_home', HodViews.admin_home),
                   path('add_staff', HodViews.add_staff),
-                  path('add_staff_save', HodViews.add_staff_save)
+                  path('add_staff_save', HodViews.add_staff_save),
                   path('add_course', HodViews.add_course),
                   path('add_course_save', HodViews.add_course_save),
 
