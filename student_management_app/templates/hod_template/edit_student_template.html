@@ -1,6 +1,6 @@
 {% extends 'hod_template/base_template.html' %}
 {% block page_title %}
-Edit Student |  Username : {{ student.admin.username }}  |  #ID : {{ student.admin.id }}
+Edit Student | Username : {{ student.admin.username }} | #ID : {{ student.admin.id }}
 {% endblock page_title %}
 {% block main_content %}
 <!-- Main content -->
@@ -15,7 +15,7 @@ Edit Student |  Username : {{ student.admin.username }}  |  #ID : {{ student.adm
               </div>
               <!-- /.card-header -->
               <!-- form start -->
-              <form role="form" action="/edit_student_save" method="post">
+              <form role="form" action="/edit_student_save" method="post" enctype="multipart/form-data">
                   {% csrf_token %}
                 <div class="card-body">
                   <div class="form-group">
@@ -61,6 +61,10 @@ Edit Student |  Username : {{ student.admin.username }}  |  #ID : {{ student.adm
                     <div class="form-group">
                     <label>Session End</label>
                     <input type="date" class="form-control" placeholder="Session End Year" name="session_end" value="{{ student.session_end_year|date:"Y-m-d" }}">
+                  </div>
+                    <div class="form-group">
+                    <label>Profile Image</label>
+                    <input type="file" class="form-control" placeholder="Session End Year" name="profile_pic">
                   </div>
                   <div class="form-group">
                   {% if messages %}
