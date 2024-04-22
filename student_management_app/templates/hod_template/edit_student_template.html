@@ -16,7 +16,7 @@ Edit Student | Username : {{ username }} | #ID : {{ id }}
               <!-- /.card-header -->
               <!-- form start -->
               {% url 'edit_student_save' as action_path %}
-              {% include 'hod_template/forms_template.html' with messages=messages form=form action_path=action_path button_text="Save Changes" %}
+              {% include 'hod_template/forms_template.html' with messages=messages form=form action_path=action_path button_text="Edit Student" %}
             <!-- /.card -->
 
 
