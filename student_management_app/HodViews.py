@@ -201,7 +201,7 @@ def edit_student(request, student_id):
     form.fields['address'].initial = student.address
     form.fields['course'].initial = student.course_id.id
     form.fields['sex'].initial = student.gender
-    form.fields['session_year_id'].initial = student.session_year_id.idk
+    form.fields['session_year_id'].initial = student.session_year_id.id
     return render(request, "hod_template/edit_student_template.html", {"form": form, "id": student_id, "username": student.admin.username})
 
 

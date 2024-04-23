@@ -52,7 +52,7 @@ Take Attendance
                 <div class="card-footer">
                   <button type="button" class="btn btn-primary btn-block" id="fetch_student">Fetch Student</button>
                 </div>
-                <div id="student_data">
+                <div id="student_data" class="card-footer">
 
                 </div>
             </div>
@@ -81,16 +81,58 @@ Take Attendance
             .done(function(response){
                 var json_data=JSON.parse(response);
                 console.log(json_data)
-                var div_data=";
+                var div_data="<div class='form-group'><label>Attendance Date: </label><input type='date' name='attendance_date' id='attendance_date' class='form-control'><div class='form-group'><div class='row'>";
                 for(key in json_data)
                 {
-                div_data+="<input type='checkbox' checked='checked' name='student_data[]' class='form-control' value='"+json_data[key]['id']+"'>"+json_data[key]['name']+" , ";
+                    div_data+="<div class='col-lg-2'><div class='form-check'><input type='checkbox' checked='checked' name='student_data[]' value='"+json_data[key]['id']+"'><label class='form-check-label'>"+json_data[key]['name']+"</label></div></div>";
                 }
+                div_data+="</div></div>";
+                div_data+="<div class='form-group'>";
+                div_data+="<button id='save_attendance' class='btn btn-success btn-block' type='button'>Save Attendance Data</button>";
                 $("#student_data").html(div_data);
 
             })
             .fail(function(){
                 alert("Error in fetching student")
+            })
+
+            $(document).on("click","#save_attendance",function(){
+
+                $(this).attr("disabled", "disabled")
+                $(this).text("Saving Attendance Data...")
+                var student_data=$("input[name='student_data[]']").map(function(){
+                        if($(this).is(":checked")){
+                            return {"id":$(this).val(),"status":1};
+                        }
+                        else{
+                            return {"id":$(this).val(),"status":0};
+
+                        }
+                }).get()
+                var attendance_date=$("Attendance_date").val();
+                var subject_id=$("#subject").val();
+                var session_year_id=$("#session_year").val();
+                console.log(student_data)
+                student_data=JSON.stringify(student_data)
+
+
+                $.ajax({
+                       url:'{% url 'save_attendance_data' %}',
+                       type:'POST',
+                       data:{student_ids:student_data,attendance_date:attendance_date,subject_id:subject_id,session_year_id:session_year_id},
+                    })
+                    .done(function(response){
+                        if(response=="OK"){
+                            alert("Attendance Saved")
+                        }
+                        else{
+                            alert("Error in Saving Data")
+                        }
+                        location.reload()
+                    })
+                    .fail(function(){
+                        alert("Error in Saving Student")
+                    })
             })
         })
 
