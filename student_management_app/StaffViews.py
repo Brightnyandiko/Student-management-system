@@ -1,11 +1,14 @@
 import json
 
+from django.contrib import messages
 from django.core import serializers
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.shortcuts import render
+from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 
-from student_management_app.models import Subjects, SessionYearModel, Students, Attendance, AttendanceReport
+from student_management_app.models import Subjects, SessionYearModel, Students, Attendance, AttendanceReport, \
+    LeaveReportStaff, Staffs, FeedbackStaff
 
 
 def staff_home(request):
@@ -104,3 +107,49 @@ def save_updateattendance_data(request):
         return HttpResponse("OK")
     except:
         return HttpResponse("Error")
+
+
+def staff_apply_leave(request):
+    staff_object = Staffs.objects.get(admin=request.user.id)
+    leave_data = LeaveReportStaff.objects.filter(staff_id=staff_object)
+    return render(request, "staff_template/staff_apply_leave.html", {"leave_data": leave_data})
+
+def staff_apply_leave_save(request):
+    if request.method != "POST":
+        return HttpResponseRedirect(reverse("staff_apply_leave"))
+    else:
+        leave_date = request.POST.get("leave_date")
+        leave_msg = request.POST.get("leave_msg")
+
+        staff_obj = Staffs.objects.get(admin=request.user.id)
+        try:
+            leave_report = LeaveReportStaff(staff_id=staff_obj, leave_date=leave_date, leave_message=leave_msg, leave_status=0)
+            leave_report.save()
+            messages.success(request, "Successfully Applied For Leave")
+            return HttpResponseRedirect(reverse("staff_apply_leave"))
+        except:
+            messages.error(request, "Failed to Apply For Leave")
+            return HttpResponseRedirect(reverse("staff_apply_leave"))
+
+
+def staff_feedback(request):
+    staff_id = Staffs.objects.get(admin=request.user.id)
+    feedback_data = FeedbackStaff.objects.filter(staff_id=staff_id)
+    return render(request, "staff_template/staff_feedback.html", {"feedback_data": feedback_data})
+
+
+def staff_feedback_save(request):
+    if request.method != "POST":
+        return HttpResponseRedirect(reverse("staff_feedback_save"))
+    else:
+        feedback_msg = request.POST.get("feedback_msg")
+
+        staff_obj = Staffs.objects.get(admin=request.user.id)
+        try:
+            feedback = FeedbackStaff(staff_id=staff_obj, feedback=feedback_msg, feedback_reply="")
+            feedback.save()
+            messages.success(request, "Successfully Sent Feedback")
+            return HttpResponseRedirect(reverse("staff_feedback"))
+        except:
+            messages.error(request, "Failed to Send Feedback")
+            return HttpResponseRedirect(reverse("staff_feedback"))

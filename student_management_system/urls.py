@@ -16,7 +16,7 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from django.conf.urls.static import static
 
 from student_management_app import views, HodViews, StaffViews, StudentViews
@@ -25,6 +25,7 @@ from student_management_system import settings
 urlpatterns = [
                   path('admin/', admin.site.urls),
                   path('demo', views.showDemoPage),
+                  path('accounts/', include('django.contrib.auth.urls')),
                   path('', views.ShowLoginPage, name="show_login"),
                   path('doLogin', views.doLogin, name="do_login"),
                   path('get_user_details', views.GetUserDetails),
@@ -61,8 +62,10 @@ urlpatterns = [
                   path('get_attendance_student', StaffViews.get_attendance_student, name="get_attendance_student"),
                   path('save_attendance_data', StaffViews.save_attendance_data, name="save_attendance_data"),
                   path('save_updateattendance_data', StaffViews.save_updateattendance_data, name="save_updateattendance_data"),
-
-
+                  path('staff_apply_leave', StaffViews.staff_apply_leave, name="staff_apply_leave"),
+                  path('staff_apply_leave_save', StaffViews.staff_apply_leave_save, name="staff_apply_leave_save"),
+                  path('staff_feedback', StaffViews.staff_feedback, name="staff_feedback"),
+                  path('staff_feedback_save', StaffViews.staff_feedback_save, name="staff_feedback_save"),
 
                   path('student_home', StudentViews.student_home, name="student_home"),
 
