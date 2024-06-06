@@ -3,6 +3,7 @@ from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
 
 from student_management_app.forms import AddStudentForm, EditStudentForm
 from student_management_app.models import CustomUser, Courses, Subjects, Staffs, Students, SessionYearModel
@@ -59,15 +60,15 @@ def add_course_save(request):
 
 
 def add_student(request):
-    form=AddStudentForm()
-    return render(request, "hod_template/add_student_template.html", {"form":form})
+    form = AddStudentForm()
+    return render(request, "hod_template/add_student_template.html", {"form": form})
 
 
 def add_student_save(request):
     if request.method != "POST":
         return HttpResponse("Method not allowed")
     else:
-        form=AddStudentForm(request.POST,request.FILES)
+        form = AddStudentForm(request.POST, request.FILES)
         if form.is_valid():
             first_name = form.cleaned_data["first_name"]
             last_name = form.cleaned_data["last_name"]
@@ -89,7 +90,7 @@ def add_student_save(request):
                 user.students.address = address
                 course_obj = Courses.objects.get(id=course_id)
                 user.students.course_id = course_obj
-                session_year=SessionYearModel.objects.get(id=session_year_id)
+                session_year = SessionYearModel.objects.get(id=session_year_id)
                 user.students.session_year_id = session_year
                 user.students.profile_pic = profile_pic_url
                 user.students.gender = sex
@@ -100,9 +101,8 @@ def add_student_save(request):
                 messages.error(request, "Failed to Add Student")
                 return HttpResponseRedirect(reverse("add_student"))
         else:
-            form=AddStudentForm(request.POST)
-            return render(request, "hod_template/add_student_template.html", {"form":form})
-
+            form = AddStudentForm(request.POST)
+            return render(request, "hod_template/add_student_template.html", {"form": form})
 
 
 def add_subject(request):
@@ -187,11 +187,11 @@ def edit_staff_save(request):
             return HttpResponseRedirect(reverse("edit_staff", kwargs={"staff_id": staff_id}))
         except:
             messages.error(request, "Failed to Edit Staff")
-            return HttpResponseRedirect(reverse("edit_staff", kwargs={"staff_id":staff_id}))
+            return HttpResponseRedirect(reverse("edit_staff", kwargs={"staff_id": staff_id}))
 
 
 def edit_student(request, student_id):
-    request.session['student_id']=student_id
+    request.session['student_id'] = student_id
     student = Students.objects.get(admin=student_id)
     form = EditStudentForm()
     form.fields['email'].initial = student.admin.email
@@ -202,7 +202,8 @@ def edit_student(request, student_id):
     form.fields['course'].initial = student.course_id.id
     form.fields['sex'].initial = student.gender
     form.fields['session_year_id'].initial = student.session_year_id.id
-    return render(request, "hod_template/edit_student_template.html", {"form": form, "id": student_id, "username": student.admin.username})
+    return render(request, "hod_template/edit_student_template.html",
+                  {"form": form, "id": student_id, "username": student.admin.username})
 
 
 def edit_student_save(request):
@@ -213,7 +214,7 @@ def edit_student_save(request):
         if student_id == None:
             return HttpResponseRedirect(reverse("manage_student"))
 
-        form=EditStudentForm(request.POST, request.FILES)
+        form = EditStudentForm(request.POST, request.FILES)
         if form.is_valid():
             first_name = form.cleaned_data["first_name"]
             last_name = form.cleaned_data["last_name"]
@@ -252,21 +253,23 @@ def edit_student_save(request):
                 student.save()
                 del request.session['student_id']
                 messages.success(request, "successfully Edited Student")
-                return HttpResponseRedirect(reverse("edit_student", kwargs={"student_id":student_id}))
+                return HttpResponseRedirect(reverse("edit_student", kwargs={"student_id": student_id}))
             except:
                 messages.error(request, "Failed To Edit Subject")
-                return HttpResponseRedirect(reverse("edit_student", kwargs={"student_id":student_id}))
+                return HttpResponseRedirect(reverse("edit_student", kwargs={"student_id": student_id}))
         else:
-            form=EditStudentForm(request.POST)
-            student=Students.objects.get(admin=student_id)
-            return render(request,"hod_template/edit_student_template.html", {"form":form, "id":student_id, "username":student.admin.username})
+            form = EditStudentForm(request.POST)
+            student = Students.objects.get(admin=student_id)
+            return render(request, "hod_template/edit_student_template.html",
+                          {"form": form, "id": student_id, "username": student.admin.username})
 
 
 def edit_subject(request, subject_id):
     subject = Subjects.objects.get(id=subject_id)
     courses = Courses.objects.all()
     staffs = CustomUser.objects.filter(user_type=2)
-    return render(request, "hod_template/edit_subject_template.html",{"subject": subject, "courses": courses, "staffs": staffs, "id":subject_id})
+    return render(request, "hod_template/edit_subject_template.html",
+                  {"subject": subject, "courses": courses, "staffs": staffs, "id": subject_id})
 
 
 def edit_subject_save(request):
@@ -275,24 +278,23 @@ def edit_subject_save(request):
     else:
         subject_id = request.POST.get("subject_id")
         subject_name = request.POST.get("subject_name")
-        staff_id=request.POST.get("staff")
-        course_id=request.POST.get("course")
+        staff_id = request.POST.get("staff")
+        course_id = request.POST.get("course")
 
     try:
         subject = Subjects.objects.get(id=subject_id)
         subject.subject_name = subject_name
-        staff=CustomUser.objects.get(id=staff_id)
-        subject.staff_id=staff
-        course=Courses.objects.get(id=course_id)
-        subject.course_id=course
+        staff = CustomUser.objects.get(id=staff_id)
+        subject.staff_id = staff
+        course = Courses.objects.get(id=course_id)
+        subject.course_id = course
         subject.save()
 
         messages.success(request, "Successfully Edited Subject")
-        return HttpResponseRedirect(reverse("edit_subject", kwargs={"subject_id":subject_id}))
+        return HttpResponseRedirect(reverse("edit_subject", kwargs={"subject_id": subject_id}))
     except:
         messages.error(request, "Failed To Edit Subject")
-        return HttpResponseRedirect(reverse("edit_subject", kwargs={"subject_id":subject_id}))
-
+        return HttpResponseRedirect(reverse("edit_subject", kwargs={"subject_id": subject_id}))
 
 
 def edit_course(request, course_id):
@@ -317,15 +319,17 @@ def edit_course_save(request):
         messages.error(request, "Failed To Edit Course")
         return HttpResponseRedirect(reverse("edit_course", kwargs={"course_id": course_id}))
 
+
 def manage_session(request):
-    return render(request,"hod_template/manage_session_template.html")
+    return render(request, "hod_template/manage_session_template.html")
+
 
 def add_session_save(request):
     if request.method != "POST":
         return HttpResponseRedirect(reverse("manage_session"))
     else:
-        session_start_year=request.POST.get("session_start")
-        session_end_year=request.POST.get("session_end")
+        session_start_year = request.POST.get("session_start")
+        session_end_year = request.POST.get("session_end")
         try:
             sessionyear = SessionYearModel(session_start_year=session_start_year, session_end_year=session_end_year)
             sessionyear.save()
@@ -334,3 +338,23 @@ def add_session_save(request):
         except:
             messages.error(request, "Failed To Add Session")
             return HttpResponseRedirect(reverse("manage_session"))
+
+
+@csrf_exempt
+def check_email_exist(request):
+    email = request.POST.get("email")
+    user_obj = CustomUser.objects.filter(email=email).exists()
+    if user_obj:
+        return HttpResponse(True)
+    else:
+        return HttpResponse(False)
+
+
+@csrf_exempt
+def check_username_exist(request):
+    username = request.POST.get("username")
+    user_obj = CustomUser.objects.filter(username=username).exists()
+    if user_obj:
+        return HttpResponse(True)
+    else:
+        return HttpResponse(False)
